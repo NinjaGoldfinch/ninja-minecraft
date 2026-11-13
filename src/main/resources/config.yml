@@ -11,7 +11,7 @@ tablist:
   #   <mspt_max>                   - colour-coded worst tick in the last 100 ticks
   #   <online> <max_players>       - player counts
   #   <ping>                       - the viewing player's ping in ms
-  header: "<gray>TPS <tps_1m><dark_gray>, </dark_gray><tps_5m><dark_gray>, </dark_gray><tps_15m>"
+  header: "<gray>TPS <dark_gray>1m</dark_gray> <tps_1m>  <dark_gray>5m</dark_gray> <tps_5m>  <dark_gray>15m</dark_gray> <tps_15m>"
   footer: "<gray>MSPT <mspt> <dark_gray>(max <mspt_max><dark_gray>)</dark_gray>  <gray>Ping <white><ping>ms"
 
 difficulty:
