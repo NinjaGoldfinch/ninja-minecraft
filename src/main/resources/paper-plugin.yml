@@ -1,0 +1,11 @@
+name: NinjaMinecraft
+version: '${version}'
+main: nz.ninjagoldfinch.minecraft.NinjaMinecraft
+description: Shows TPS and MSPT in the tab list, and lets players use /difficulty without OP.
+author: NinjaGoldfinch
+api-version: '26.3'
+
+permissions:
+  ninjaminecraft.reload:
+    description: Allows /ninjaminecraft reload
+    default: op

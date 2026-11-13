@@ -1,0 +1,20 @@
+# NinjaMinecraft configuration
+# Reload with /ninjaminecraft reload
+
+tablist:
+  enabled: true
+  # How often the tab list is refreshed, in ticks (20 ticks = 1 second).
+  update-interval-ticks: 20
+  # MiniMessage format. Available placeholders:
+  #   <tps_1m> <tps_5m> <tps_15m>  - colour-coded TPS averages
+  #   <mspt>                       - colour-coded average milliseconds per tick (last 100 ticks)
+  #   <mspt_max>                   - colour-coded worst tick in the last 100 ticks
+  #   <online> <max_players>       - player counts
+  #   <ping>                       - the viewing player's ping in ms
+  header: "<gray>TPS <tps_1m><dark_gray>, </dark_gray><tps_5m><dark_gray>, </dark_gray><tps_15m>"
+  footer: "<gray>MSPT <mspt> <dark_gray>(max <mspt_max><dark_gray>)</dark_gray>  <gray>Ping <white><ping>ms"
+
+difficulty:
+  # Let every player use /difficulty without being OP.
+  # Note: difficulty is global, so any player can change it for the whole server.
+  allow-everyone: true
