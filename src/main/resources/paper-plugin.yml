@@ -1,11 +1,14 @@
 name: NinjaMinecraft
 version: '${version}'
 main: nz.ninjagoldfinch.minecraft.NinjaMinecraft
-description: Shows TPS and MSPT in the tab list, and lets players use /difficulty without OP.
+description: TPS/MSPT tab list, a stats scoreboard with /subscribe opt in/out, and /difficulty without OP.
 author: NinjaGoldfinch
 api-version: '26.3'
 
 permissions:
+  ninjaminecraft.subscribe:
+    description: Allows /subscribe to turn the tab list and scoreboard on or off for yourself
+    default: true
   ninjaminecraft.reload:
     description: Allows /ninjaminecraft reload
     default: op

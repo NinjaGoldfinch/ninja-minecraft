@@ -1,18 +1,45 @@
 # NinjaMinecraft configuration
 # Reload with /ninjaminecraft reload
+#
+# Text uses MiniMessage format (https://docs.advntr.dev/minimessage/format.html).
+# Placeholders available in the tab list and scoreboard:
+#   <tps_1m> <tps_5m> <tps_15m>  - colour-coded TPS averaged over 1, 5 and 15 minutes
+#   <mspt>                       - colour-coded average milliseconds per tick (last 100 ticks)
+#   <mspt_max>                   - colour-coded worst tick in the last 100 ticks
+#   <online> <max_players>       - player counts
+#   <ping>                       - the viewing player's ping in ms
+#   <day>                        - day number in the main world (same as /time query day)
+#   <time>                       - in-game clock in the main world, e.g. 06:00
+#   <weather>                    - Clear, Rain or Thunder in the main world
+
+# How often the tab list and scoreboard refresh, in ticks (20 ticks = 1 second).
+update-interval-ticks: 20
 
 tablist:
   enabled: true
-  # How often the tab list is refreshed, in ticks (20 ticks = 1 second).
-  update-interval-ticks: 20
-  # MiniMessage format. Available placeholders:
-  #   <tps_1m> <tps_5m> <tps_15m>  - colour-coded TPS averages
-  #   <mspt>                       - colour-coded average milliseconds per tick (last 100 ticks)
-  #   <mspt_max>                   - colour-coded worst tick in the last 100 ticks
-  #   <online> <max_players>       - player counts
-  #   <ping>                       - the viewing player's ping in ms
+  # Shown to players who haven't used /subscribe tablist yet.
+  default-subscribed: true
   header: "<gray>TPS <dark_gray>1m</dark_gray> <tps_1m>  <dark_gray>5m</dark_gray> <tps_5m>  <dark_gray>15m</dark_gray> <tps_15m>"
   footer: "<gray>MSPT <mspt> <dark_gray>(max <mspt_max><dark_gray>)</dark_gray>  <gray>Ping <white><ping>ms"
+
+scoreboard:
+  enabled: true
+  # Shown to players who haven't used /subscribe scoreboard yet.
+  default-subscribed: true
+  # Note: each subscribed player gets their own scoreboard, so they won't see objectives or
+  # team colours from the server's main scoreboard (e.g. ones made with /scoreboard or /team).
+  title: "<gold><bold>Server"
+  # Up to 15 lines. Empty strings make blank spacer lines.
+  lines:
+    - "<gray>Day <white><day>"
+    - "<gray>Time <white><time>"
+    - "<gray>Weather <white><weather>"
+    - ""
+    - "<gray>Online <white><online><dark_gray>/</dark_gray><max_players>"
+    - "<gray>Ping <white><ping>ms"
+    - ""
+    - "<gray>TPS <tps_1m>"
+    - "<gray>MSPT <mspt>"
 
 difficulty:
   # Let every player use /difficulty without being OP.
