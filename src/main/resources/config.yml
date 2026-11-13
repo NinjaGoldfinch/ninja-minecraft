@@ -14,7 +14,7 @@
 #   <time>                       - in-game clock in the main world, e.g. 06:00
 #   <time_icon>                  - yellow sun by day, blue moon by night
 #   <weather>                    - Clear, Rain or Thunder in the main world
-#   <weather_icon>               - matching icon: sun, umbrella or lightning bolt
+#   <weather_icon>               - matching icon: sparkle, umbrella or lightning bolt
 
 # How often the tab list and scoreboard refresh, in ticks (20 ticks = 1 second).
 update-interval-ticks: 20
@@ -38,17 +38,17 @@ scoreboard:
   lines:
     - "<dark_gray><st>                         </st>"
     - "<gold><bold>World"
-    - " <time_icon> <gray>Day <white><day> <dark_gray>· <white><time>"
+    - " <time_icon> <gray>Day <white><day> <gray>· <white><time>"
     - " <weather_icon> <gray><weather>"
     - ""
     - "<gold><bold>Players"
-    - " <dark_gray>▸ <gray>Online <white><online><dark_gray>/</dark_gray><max_players>"
-    - " <dark_gray>▸ <gray>Ping <ping><gray>ms"
+    - " <gray>▸ <gray>Online <white><online><dark_gray>/</dark_gray><max_players>"
+    - " <gray>▸ <gray>Ping <ping><gray>ms"
     - ""
     - "<gold><bold>Performance"
-    - " <dark_gray>▸ <gray>TPS <tps_1m>"
+    - " <gray>▸ <gray>TPS <tps_1m>"
     - "   <tps_bar>"
-    - " <dark_gray>▸ <gray>MSPT <mspt>"
+    - " <gray>▸ <gray>MSPT <mspt>"
     - "   <mspt_bar>"
     - "<dark_gray><st>                         </st>"
 

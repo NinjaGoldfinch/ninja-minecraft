@@ -108,7 +108,7 @@ record ServerStats(TagResolver shared) {
         }
         return world.hasStorm()
                 ? Component.text("☂", NamedTextColor.AQUA)
-                : Component.text("☀", NamedTextColor.YELLOW);
+                : Component.text("✧", NamedTextColor.WHITE);
     }
 
     private static double maxTickMillis(long[] tickTimesNanos) {
