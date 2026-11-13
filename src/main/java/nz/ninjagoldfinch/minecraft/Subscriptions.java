@@ -24,7 +24,7 @@ final class Subscriptions {
 
     void reload(FileConfiguration config) {
         for (Display display : Display.values()) {
-            defaults.put(display, config.getBoolean(display.id + ".default-subscribed", true));
+            defaults.put(display, config.getBoolean(display.id + ".default-subscribed"));
         }
     }
 

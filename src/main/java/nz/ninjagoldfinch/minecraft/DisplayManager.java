@@ -28,7 +28,7 @@ final class DisplayManager implements Listener {
         scoreboard.reload(config);
         subscriptions.reload(config);
 
-        long interval = Math.max(1, config.getLong("update-interval-ticks", 20));
+        long interval = Math.max(1, config.getLong("update-interval-ticks"));
         task = plugin.getServer().getScheduler().runTaskTimer(plugin, this::refresh, 1L, interval);
     }
 

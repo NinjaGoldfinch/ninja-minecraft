@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Locale;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Server;
@@ -16,27 +17,51 @@ import org.bukkit.entity.Player;
  */
 record ServerStats(TagResolver shared) {
 
+    private static final int BAR_SEGMENTS = 20;
+    private static final TextColor NIGHT_BLUE = TextColor.color(0x8FA8FF);
+
     static ServerStats capture(Server server) {
         double[] tps = server.getTPS();
+        double tps1m = Math.min(20.0, tps[0]);
+        double mspt = server.getAverageTickTime();
         List<World> worlds = server.getWorlds();
         // Day, time and weather follow the main (first-loaded) world.
         World world = worlds.isEmpty() ? null : worlds.getFirst();
 
-        return new ServerStats(TagResolver.resolver(
+        TagResolver.Builder builder = TagResolver.builder().resolvers(
                 Placeholder.component("tps_1m", tps(tps[0])),
                 Placeholder.component("tps_5m", tps(tps[1])),
                 Placeholder.component("tps_15m", tps(tps[2])),
-                Placeholder.component("mspt", mspt(server.getAverageTickTime())),
+                Placeholder.component("tps_bar", bar(tps1m / 20.0, tpsColor(tps1m))),
+                Placeholder.component("mspt", mspt(mspt)),
                 Placeholder.component("mspt_max", mspt(maxTickMillis(server.getTickTimes()))),
+                // How much of the 50 ms tick budget is used.
+                Placeholder.component("mspt_bar", bar(mspt / 50.0, msptColor(mspt))),
                 Placeholder.unparsed("online", Integer.toString(server.getOnlinePlayers().size())),
-                Placeholder.unparsed("max_players", Integer.toString(server.getMaxPlayers())),
-                Placeholder.unparsed("day", world == null ? "?" : Long.toString(day(world.getFullTime()))),
-                Placeholder.unparsed("time", world == null ? "?" : clock(world.getTime())),
-                Placeholder.unparsed("weather", world == null ? "?" : weather(world))));
+                Placeholder.unparsed("max_players", Integer.toString(server.getMaxPlayers())));
+
+        if (world == null) {
+            builder.resolvers(
+                    Placeholder.unparsed("day", "?"),
+                    Placeholder.unparsed("time", "?"),
+                    Placeholder.unparsed("weather", "?"),
+                    Placeholder.unparsed("time_icon", ""),
+                    Placeholder.unparsed("weather_icon", ""));
+        } else {
+            builder.resolvers(
+                    Placeholder.unparsed("day", Long.toString(day(world.getFullTime()))),
+                    Placeholder.unparsed("time", clock(world.getTime())),
+                    Placeholder.unparsed("weather", weatherName(world)),
+                    Placeholder.component("time_icon", world.isDayTime()
+                            ? Component.text("☀", NamedTextColor.YELLOW)
+                            : Component.text("☽", NIGHT_BLUE)),
+                    Placeholder.component("weather_icon", weatherIcon(world)));
+        }
+        return new ServerStats(builder.build());
     }
 
     TagResolver resolver(Player viewer) {
-        return TagResolver.resolver(shared, Placeholder.unparsed("ping", Integer.toString(viewer.getPing())));
+        return TagResolver.resolver(shared, Placeholder.component("ping", ping(viewer.getPing())));
     }
 
     /** Same numbering as vanilla {@code /time query day}: the world starts on day 0. */
@@ -52,11 +77,29 @@ record ServerStats(TagResolver shared) {
         return String.format(Locale.ROOT, "%02d:%02d", hours, minutes);
     }
 
-    private static String weather(World world) {
+    /** A row of {@value #BAR_SEGMENTS} thin bars, the first {@code fraction} of them lit. */
+    static Component bar(double fraction, TextColor color) {
+        int lit = (int) Math.round(Math.clamp(fraction, 0.0, 1.0) * BAR_SEGMENTS);
+        return Component.text()
+                .append(Component.text("|".repeat(lit), color))
+                .append(Component.text("|".repeat(BAR_SEGMENTS - lit), NamedTextColor.DARK_GRAY))
+                .build();
+    }
+
+    private static String weatherName(World world) {
         if (world.isThundering()) {
             return "Thunder";
         }
         return world.hasStorm() ? "Rain" : "Clear";
+    }
+
+    private static Component weatherIcon(World world) {
+        if (world.isThundering()) {
+            return Component.text("⚡", NamedTextColor.GOLD);
+        }
+        return world.hasStorm()
+                ? Component.text("☂", NamedTextColor.AQUA)
+                : Component.text("☀", NamedTextColor.YELLOW);
     }
 
     private static double maxTickMillis(long[] tickTimesNanos) {
@@ -69,17 +112,30 @@ record ServerStats(TagResolver shared) {
 
     private static Component tps(double value) {
         double shown = Math.min(20.0, value);
-        NamedTextColor color = shown >= 19.5 ? NamedTextColor.GREEN
-                : shown >= 17.0 ? NamedTextColor.YELLOW
+        return Component.text(String.format(Locale.ROOT, "%.1f", shown), tpsColor(shown));
+    }
+
+    private static NamedTextColor tpsColor(double tps) {
+        return tps >= 19.5 ? NamedTextColor.GREEN
+                : tps >= 17.0 ? NamedTextColor.YELLOW
                 : NamedTextColor.RED;
-        return Component.text(String.format(Locale.ROOT, "%.1f", shown), color);
     }
 
     private static Component mspt(double value) {
-        // 50 ms is the full budget for one tick at 20 TPS.
-        NamedTextColor color = value < 40.0 ? NamedTextColor.GREEN
-                : value < 50.0 ? NamedTextColor.YELLOW
+        return Component.text(String.format(Locale.ROOT, "%.1f", value), msptColor(value));
+    }
+
+    /** 50 ms is the full budget for one tick at 20 TPS. */
+    private static NamedTextColor msptColor(double mspt) {
+        return mspt < 40.0 ? NamedTextColor.GREEN
+                : mspt < 50.0 ? NamedTextColor.YELLOW
                 : NamedTextColor.RED;
-        return Component.text(String.format(Locale.ROOT, "%.1f", value), color);
+    }
+
+    private static Component ping(int ms) {
+        NamedTextColor color = ms < 80 ? NamedTextColor.GREEN
+                : ms < 200 ? NamedTextColor.YELLOW
+                : NamedTextColor.RED;
+        return Component.text(Integer.toString(ms), color);
     }
 }

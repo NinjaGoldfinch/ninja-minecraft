@@ -5,7 +5,8 @@ A small [Paper](https://papermc.io) plugin for Minecraft **26.3**.
 - **TPS & MSPT in the tab list.** The header shows the TPS averaged over the last 1, 5 and 15 minutes (labelled 1m / 5m / 15m)
   and the footer shows average and worst MSPT over the last 100 ticks, plus your ping. Values are colour-coded
   (green = healthy, yellow = strained, red = lagging; MSPT over 50 ms means the server can't keep 20 TPS).
-- **Stats scoreboard.** A sidebar with the day, in-game time, weather, players online, your ping, TPS and MSPT.
+- **Stats scoreboard.** A sidebar with the day, in-game time (with a sun/moon icon), weather (with an icon), players online,
+  your ping, and TPS and MSPT with load bars.
   Every line is configurable.
 - **`/subscribe` (alias `/sub`).** Each player can turn the tab list and scoreboard on or off for themselves:
   `/subscribe` shows your settings, `/subscribe <tablist|scoreboard>` toggles one, and adding `on` / `off` sets it.

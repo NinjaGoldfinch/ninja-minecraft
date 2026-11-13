@@ -16,9 +16,9 @@ final class TabListDisplay {
     private String footer = "";
 
     void reload(FileConfiguration config) {
-        enabled = config.getBoolean("tablist.enabled", true);
-        header = config.getString("tablist.header", "");
-        footer = config.getString("tablist.footer", "");
+        enabled = config.getBoolean("tablist.enabled");
+        header = java.util.Objects.requireNonNullElse(config.getString("tablist.header"), "");
+        footer = java.util.Objects.requireNonNullElse(config.getString("tablist.footer"), "");
     }
 
     boolean enabled() {

@@ -25,7 +25,7 @@ final class DifficultyAccess implements Listener {
     }
 
     void reload(FileConfiguration config) {
-        enabled = config.getBoolean("difficulty.allow-everyone", true);
+        enabled = config.getBoolean("difficulty.allow-everyone");
         for (Player player : plugin.getServer().getOnlinePlayers()) {
             if (enabled) {
                 grant(player);

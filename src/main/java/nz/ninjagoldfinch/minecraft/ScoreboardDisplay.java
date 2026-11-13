@@ -32,8 +32,8 @@ final class ScoreboardDisplay {
     private List<String> lines = List.of();
 
     void reload(FileConfiguration config) {
-        enabled = config.getBoolean("scoreboard.enabled", true);
-        title = config.getString("scoreboard.title", "");
+        enabled = config.getBoolean("scoreboard.enabled");
+        title = java.util.Objects.requireNonNullElse(config.getString("scoreboard.title"), "");
         List<String> configured = config.getStringList("scoreboard.lines");
         lines = List.copyOf(configured.subList(0, Math.min(MAX_LINES, configured.size())));
     }
