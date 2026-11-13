@@ -1,6 +1,7 @@
 package nz.ninjagoldfinch.minecraft;
 
 import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -13,8 +14,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class NinjaMinecraft extends JavaPlugin {
 
+    private static final String RELOAD_PERMISSION = "ninjaminecraft.reload";
+    private static final String SLEEP_ADMIN_PERMISSION = "ninjaminecraft.sleep.admin";
+
     private DisplayManager displays;
     private DifficultyAccess difficultyAccess;
+    private SleepManager sleep;
 
     @Override
     public void onEnable() {
@@ -22,8 +27,10 @@ public final class NinjaMinecraft extends JavaPlugin {
 
         displays = new DisplayManager(this);
         difficultyAccess = new DifficultyAccess(this);
+        sleep = new SleepManager(this);
         getServer().getPluginManager().registerEvents(displays, this);
         getServer().getPluginManager().registerEvents(difficultyAccess, this);
+        getServer().getPluginManager().registerEvents(sleep, this);
 
         applyConfig();
         registerCommands();
@@ -42,27 +49,87 @@ public final class NinjaMinecraft extends JavaPlugin {
     private void applyConfig() {
         displays.reload(getConfig());
         difficultyAccess.reload(getConfig());
+        sleep.reload(getConfig());
     }
 
     private void registerCommands() {
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
-            event.registrar().register(reloadCommand(), "NinjaMinecraft admin commands");
+            event.registrar().register(adminCommand(), "NinjaMinecraft admin commands");
             event.registrar().register(subscribeCommand(),
                     "Turn the tab list and scoreboard displays on or off for yourself", List.of("sub"));
         });
     }
 
-    private com.mojang.brigadier.tree.LiteralCommandNode<CommandSourceStack> reloadCommand() {
+    /**
+     * /ninjaminecraft reload
+     * /ninjaminecraft sleep                          - show sleep settings
+     * /ninjaminecraft sleep percentage <0-100>
+     * /ninjaminecraft sleep messages <on|off>
+     */
+    private com.mojang.brigadier.tree.LiteralCommandNode<CommandSourceStack> adminCommand() {
         return Commands.literal("ninjaminecraft")
-                .requires(source -> source.getSender().hasPermission("ninjaminecraft.reload"))
-                .then(Commands.literal("reload").executes(ctx -> {
-                    reloadConfig();
-                    applyConfig();
-                    ctx.getSource().getSender().sendMessage(
-                            Component.text("NinjaMinecraft config reloaded.", NamedTextColor.GREEN));
-                    return Command.SINGLE_SUCCESS;
-                }))
+                .requires(source -> source.getSender().hasPermission(RELOAD_PERMISSION)
+                        || source.getSender().hasPermission(SLEEP_ADMIN_PERMISSION))
+                .then(Commands.literal("reload")
+                        .requires(source -> source.getSender().hasPermission(RELOAD_PERMISSION))
+                        .executes(ctx -> {
+                            reloadConfig();
+                            applyConfig();
+                            ctx.getSource().getSender().sendMessage(
+                                    Component.text("NinjaMinecraft config reloaded.", NamedTextColor.GREEN));
+                            return Command.SINGLE_SUCCESS;
+                        }))
+                .then(Commands.literal("sleep")
+                        .requires(source -> source.getSender().hasPermission(SLEEP_ADMIN_PERMISSION))
+                        .executes(ctx -> {
+                            sendSleepStatus(ctx.getSource().getSender());
+                            return Command.SINGLE_SUCCESS;
+                        })
+                        .then(Commands.literal("percentage")
+                                .then(Commands.argument("percent", IntegerArgumentType.integer(0, 100))
+                                        .executes(ctx -> {
+                                            setSleepSetting("sleep.percentage",
+                                                    IntegerArgumentType.getInteger(ctx, "percent"));
+                                            sendSleepStatus(ctx.getSource().getSender());
+                                            return Command.SINGLE_SUCCESS;
+                                        })))
+                        .then(Commands.literal("messages")
+                                .then(Commands.literal("on").executes(ctx -> {
+                                    setSleepSetting("sleep.messages.enabled", true);
+                                    sendSleepStatus(ctx.getSource().getSender());
+                                    return Command.SINGLE_SUCCESS;
+                                }))
+                                .then(Commands.literal("off").executes(ctx -> {
+                                    setSleepSetting("sleep.messages.enabled", false);
+                                    sendSleepStatus(ctx.getSource().getSender());
+                                    return Command.SINGLE_SUCCESS;
+                                }))))
                 .build();
+    }
+
+    /** Saves one sleep setting to config.yml and applies it straight away. */
+    private void setSleepSetting(String path, Object value) {
+        getConfig().set(path, value);
+        saveConfig();
+        sleep.reload(getConfig());
+    }
+
+    private void sendSleepStatus(org.bukkit.command.CommandSender sender) {
+        int percent = sleep.percentage();
+        String meaning = percent == 0 ? "one player is enough" : percent + "% of players must sleep";
+        sender.sendMessage(Component.text("Sleep settings", NamedTextColor.GOLD));
+        sender.sendMessage(Component.text(" Percentage: ", NamedTextColor.GRAY)
+                .append(Component.text(percent + "%", NamedTextColor.WHITE))
+                .append(Component.text(" (" + meaning + ")", NamedTextColor.DARK_GRAY)));
+        if (!sleep.managesGamerule()) {
+            sender.sendMessage(Component.text(
+                    " manage-gamerule is off, so worlds use their own players_sleeping_percentage gamerule.",
+                    NamedTextColor.YELLOW));
+        }
+        sender.sendMessage(Component.text(" Messages: ", NamedTextColor.GRAY)
+                .append(sleep.messagesEnabled()
+                        ? Component.text("on", NamedTextColor.GREEN)
+                        : Component.text("off", NamedTextColor.RED)));
     }
 
     /**

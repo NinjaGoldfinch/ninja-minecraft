@@ -56,3 +56,27 @@ difficulty:
   # Let every player use /difficulty without being OP.
   # Note: difficulty is global, so any player can change it for the whole server.
   allow-everyone: true
+
+sleep:
+  # The night skip is done by vanilla itself, through the players_sleeping_percentage gamerule:
+  # vanilla still waits for sleepers to be fully asleep, wakes everyone, clears rain and resets
+  # phantom timers. This plugin only sets the gamerule and adds the chat messages below.
+  #
+  # Set the gamerule on every world from "percentage" below. Turn off to manage it per world
+  # yourself with /gamerule players_sleeping_percentage.
+  manage-gamerule: true
+  # Percentage of players in the world (spectators don't count) who must sleep to skip the night.
+  # Vanilla rounds up and always needs at least one, so 0 means one player is enough.
+  # Vanilla's default is 100. Change in-game with /ninjaminecraft sleep percentage <0-100> (OP only).
+  percentage: 0
+  messages:
+    # Toggle in-game with /ninjaminecraft sleep messages <on|off> (OP only).
+    enabled: true
+    # Placeholders: <player> (who got in bed), <sleeping>, <needed>, <world>,
+    # and <players> (everyone who slept) in the skipped messages.
+    sleeping: "<blue>☽</blue> <white><player></white> <gray>is sleeping <dark_gray>(<white><sleeping></white>/<white><needed></white>)"
+    skipping-night: "<gray>Enough players are sleeping. <white>Skipping the night...</white>"
+    skipping-storm: "<gray>Enough players are sleeping. <white>Skipping the storm...</white>"
+    skipped-night: "<yellow>☀</yellow> <gold>Good morning!</gold> <gray>Night skipped by <white><players></white>."
+    skipped-storm: "<aqua>☂</aqua> <gray>The storm was skipped by <white><players></white>."
+    cancelled: "<gray>Not enough players are sleeping any more. The night carries on."

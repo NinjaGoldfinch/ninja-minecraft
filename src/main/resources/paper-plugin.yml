@@ -1,7 +1,7 @@
 name: NinjaMinecraft
 version: '${version}'
 main: nz.ninjagoldfinch.minecraft.NinjaMinecraft
-description: TPS/MSPT tab list, a stats scoreboard with /subscribe opt in/out, and /difficulty without OP.
+description: TPS/MSPT tab list, a stats scoreboard with /subscribe opt in/out, sleep messages on top of vanilla sleeping, and /difficulty without OP.
 author: NinjaGoldfinch
 api-version: '26.3'
 
@@ -11,4 +11,7 @@ permissions:
     default: true
   ninjaminecraft.reload:
     description: Allows /ninjaminecraft reload
+    default: op
+  ninjaminecraft.sleep.admin:
+    description: Allows /ninjaminecraft sleep to change the sleep percentage and messages
     default: op

@@ -52,9 +52,9 @@ record ServerStats(TagResolver shared) {
                     Placeholder.unparsed("day", Long.toString(day(world.getFullTime()))),
                     Placeholder.unparsed("time", clock(world.getTime())),
                     Placeholder.unparsed("weather", weatherName(world)),
-                    Placeholder.component("time_icon", world.isDayTime()
-                            ? Component.text("☀", NamedTextColor.YELLOW)
-                            : Component.text("☽", NIGHT_BLUE)),
+                    Placeholder.component("time_icon", isNight(world.getTime())
+                            ? Component.text("☽", NIGHT_BLUE)
+                            : Component.text("☀", NamedTextColor.YELLOW)),
                     Placeholder.component("weather_icon", weatherIcon(world)));
         }
         return new ServerStats(builder.build());
@@ -67,6 +67,15 @@ record ServerStats(TagResolver shared) {
     /** Same numbering as vanilla {@code /time query day}: the world starts on day 0. */
     static long day(long fullTime) {
         return fullTime / 24_000L;
+    }
+
+    /**
+     * Night by the clock: the window where beds work in clear weather (vanilla ticks 12542-23459).
+     * Unlike {@code World#isDayTime()}, a daytime thunderstorm doesn't count as night.
+     */
+    static boolean isNight(long dayTime) {
+        long ticks = Math.floorMod(dayTime, 24_000L);
+        return ticks >= 12_542 && ticks < 23_460;
     }
 
     /** In-game clock as HH:MM. Tick 0 of a day is 06:00. */

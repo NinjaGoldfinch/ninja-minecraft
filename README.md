@@ -12,6 +12,12 @@ A small [Paper](https://papermc.io) plugin for Minecraft **26.3**.
   `/subscribe` shows your settings, `/subscribe <tablist|scoreboard>` toggles one, and adding `on` / `off` sets it.
   Choices are saved on the player and survive restarts. The default for players who haven't chosen is set per
   display with `default-subscribed`.
+- **Sleep messages on top of vanilla sleeping.** The night skip is left to vanilla (via the
+  `players_sleeping_percentage` gamerule), so it behaves exactly like vanilla: sleepers must be fully asleep,
+  everyone is woken, rain is cleared and phantom timers reset. The plugin announces who is sleeping with a
+  count (`(1/2)`), when the night is about to be skipped, when it was skipped and by whom, and when a skip is
+  called off because someone got up. OPs can change the required percentage and turn messages on or off with
+  `/ninjaminecraft sleep` (permission `ninjaminecraft.sleep.admin`); message text is in `config.yml`.
 - **`/difficulty` without OP.** Every player gets the vanilla `minecraft.command.difficulty` permission.
   Difficulty is server-wide, so anyone can change it for everyone. Turn it off with
   `difficulty.allow-everyone: false`.
